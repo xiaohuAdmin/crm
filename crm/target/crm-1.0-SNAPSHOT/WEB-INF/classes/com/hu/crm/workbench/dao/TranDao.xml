@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hu.crm.workbench.dao.TranDao">
+    <select id="getCharts" resultType="map">
+
+        select
+
+            count(*) as value,stage as name
+
+        from tbl_tran
+
+        group by stage
+
+    </select>
+
+    <select id="getTotal" resultType="int">
+
+        select count(*) from tbl_tran
+
+    </select>
+
+    <update id="changeStage">
+
+        update tbl_tran set stage=#{stage},editBy=#{editBy},editTime=#{editTime}
+        where id=#{id}
+
+    </update>
+
+    <select id="detail" resultType="Tran">
+
+        select
+
+            tran.id,
+            user.name as owner,
+            tran.money,
+            tran.name,
+            tran.expectedDate,
+            cus.name as customerId,
+            tran.stage,
+            tran.type,
+            tran.source,
+            act.name as activityId,
+            con.fullname as contactsId,
+            tran.createBy,
+            tran.createTime,
+            tran.editBy,
+            tran.editTime,
+            tran.description,
+            tran.contactSummary,
+            tran.nextContactTime
+
+
+        from tbl_tran tran
+                 join tbl_user user
+        on tran.owner=user.id
+            join tbl_customer cus
+            on tran.customerId=cus.id
+            left join tbl_activity act
+            on tran.activityId=act.id
+            left join tbl_contacts con
+            on tran.contactsId=con.id
+
+        where tran.id=#{id}
+
+
+
+    </select>
+
+    <insert id="save">
+
+        insert into tbl_tran(
+
+            id,
+            owner,
+            money,
+            name,
+            expectedDate,
+            customerId,
+            stage,
+            type,
+            source,
+            activityId,
+            contactsId,
+            createBy,
+            createTime,
+            description,
+            contactSummary,
+            nextContactTime
+
+
+        )
+
+        values(
+
+                  #{id},
+                  #{owner},
+                  #{money},
+                  #{name},
+                  #{expectedDate},
+                  #{customerId},
+                  #{stage},
+                  #{type},
+                  #{source},
+                  #{activityId},
+                  #{contactsId},
+                  #{createBy},
+                  #{createTime},
+                  #{description},
+                  #{contactSummary},
+                  #{nextContactTime}
+
+              )
+
+
+    </insert>
+
+    <select id="getCountByAids" resultType="int">
+        select count(*)
+        from tbl_tran
+        where customerId in
+        <foreach collection="array" item="aid" open="(" close=")" separator=",">
+            #{aid}
+        </foreach>
+    </select>
+
+    <delete id="deleteByAids">
+        delete
+        from tbl_tran
+        where customerId in
+        <foreach collection="array" item="aid" open="(" close=")" separator=",">
+            #{aid}
+        </foreach>
+    </delete>
+
+    <select id="getActivityListByCondition" resultType="Tran">
+        select t.id,
+               t.name,
+               u.name as owner,
+               cus.name as customerId,
+               con.fullname as contactsId,
+               t.stage,
+               t.type,
+               t.source
+        from tbl_tran t
+                 join tbl_user u
+                      on t.owner=u.id
+                 join tbl_customer cus
+                      on t.customerId=cus.id
+                 join tbl_contacts con
+                      on t.contactsId=con.id
+        <where>
+            <if test="name!=null and name!=''">
+                t.name like "%" #{name} "%"
+            </if>
+
+            <if test="owner!=null and owner!=''">
+                and u.name like "%" #{owner} "%"
+            </if>
+
+            <if test="CustomerName!=null and CustomerName!=''">
+                and cus.name = #{CustomerName}
+            </if>
+
+            <if test="stage!=null and stage!=''">
+                t.stage = #{stage}
+            </if>
+            <if test="type!=null and type!=''">
+                t.type = #{type}
+            </if>
+            <if test="source!=null and source!=''">
+                t.source = #{source}
+            </if>
+            <if test="fullname!=null and fullname!=''">
+                con.fullname = #{fullname}
+            </if>
+        </where>
+        order by t.createTime desc
+        limit #{skipCount},#{pageSize}
+    </select>
+    <select id="getTotalByCondition" resultType="int">
+        select count(*)
+        from tbl_tran t
+                 join tbl_user u
+                      on t.owner=u.id
+                 join tbl_customer cus
+                      on t.customerId=cus.id
+                 join tbl_contacts con
+                      on t.contactsId=con.id
+        <where>
+            <if test="name!=null and name!=''">
+                t.name like "%" #{name} "%"
+            </if>
+
+            <if test="owner!=null and owner!=''">
+                and u.name like "%" #{owner} "%"
+            </if>
+
+            <if test="CustomerName!=null and CustomerName!=''">
+                and cus.name = #{CustomerName}
+            </if>
+
+            <if test="stage!=null and stage!=''">
+                t.stage = #{stage}
+            </if>
+            <if test="type!=null and type!=''">
+                t.type = #{type}
+            </if>
+            <if test="source!=null and source!=''">
+                t.source = #{source}
+            </if>
+            <if test="fullname!=null and fullname!=''">
+                con.fullname = #{fullname}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="getTranListByCustomerId" resultType="Tran">
+        select * from tbl_tran where customerId=#{customerId}
+    </select>
+
+</mapper>
+

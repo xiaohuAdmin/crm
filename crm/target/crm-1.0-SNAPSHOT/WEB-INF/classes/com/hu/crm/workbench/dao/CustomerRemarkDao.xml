@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hu.crm.workbench.dao.CustomerRemarkDao">
+
+    <insert id="save">
+        insert into tbl_customer_remark(
+            id,
+            noteContent,
+            createBy,
+            createTime,
+            editBy,
+            editTime,
+            editFlag,
+            customerId
+        )values (
+                    #{id},
+                    #{noteContent},
+                    #{createBy},
+                    #{createTime},
+                    #{editBy},
+                    #{editTime},
+                    #{editFlag},
+                    #{customerId}
+                )
+    </insert>
+    <select id="getCountByAids" resultType="int">
+        select count(*)
+        from tbl_customer_remark
+        where customerId in
+        <foreach collection="array" item="aid" open="(" close=")" separator=",">
+            #{aid}
+        </foreach>
+    </select>
+
+    <delete id="deleteByAids">
+        delete
+        from tbl_customer_remark
+        where customerId in
+        <foreach collection="array" item="aid" open="(" close=")" separator=",">
+            #{aid}
+        </foreach>
+    </delete>
+
+    <select id="getRemarkListByAid" resultType="CustomerRemark">
+        select * from tbl_customer_remark where customerId=#{id} order by createTime desc
+    </select>
+
+    <insert id="saveRemark">
+        insert into tbl_customer_remark(id,noteContent,createTime,createBy,editFlag,customerId) values
+        (#{id},#{noteContent},#{createTime},#{createBy},#{editFlag},#{customerId})
+    </insert>
+
+    <delete id="deleteRemark">
+        delete from tbl_customer_remark where id=#{id}
+    </delete>
+
+    <update id="updateRemark">
+        update tbl_customer_remark
+        set noteContent=#{noteContent},
+            editTime=#{editTime},
+            editBy=#{editBy},
+            editFlag=#{editFlag}
+        where
+            id=#{id}
+    </update>
+</mapper>
